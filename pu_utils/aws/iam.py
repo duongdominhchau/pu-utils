@@ -32,6 +32,23 @@ def policy_json(*, actions: Sequence[str], resource: str, allow: bool = True) ->
     )
 
 
+def assume_role_policy() -> str:
+    return get_policy_document(
+        statements=[
+            GetPolicyDocumentStatementArgs(
+                effect="Allow",
+                principals=[
+                    GetPolicyDocumentStatementPrincipalArgs(
+                        type="Service",
+                        identifiers=["lambda.amazonaws.com"],
+                    )
+                ],
+                actions=["sts:AssumeRole"],
+            )
+        ]
+    ).json
+
+
 @dataclass
 class PolicyFactory:
     """A factory to quickly create policies following convention"""
@@ -164,19 +181,3 @@ class PolicyFactory:
             # Needed for decrypting S3 objects
             self.kms_policy(),
         ]
-
-    def assume_role_policy(self) -> AwaitableGetPolicyDocumentResult:
-        return get_policy_document(
-            statements=[
-                GetPolicyDocumentStatementArgs(
-                    effect="Allow",
-                    principals=[
-                        GetPolicyDocumentStatementPrincipalArgs(
-                            type="Service",
-                            identifiers=["lambda.amazonaws.com"],
-                        )
-                    ],
-                    actions=["sts:AssumeRole"],
-                )
-            ]
-        )

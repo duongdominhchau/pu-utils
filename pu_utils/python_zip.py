@@ -8,6 +8,7 @@ def pip_install(requirements_path: str | Path, target_path: str | Path) -> None:
     requirements_path = Path(requirements_path)
     target_path = Path(target_path)
 
+    target_path.parent.mkdir(0o755, exist_ok=True)
     rmtree(target_path, ignore_errors=True)
     command = [
         "pip",
@@ -99,7 +100,7 @@ def zip_source(
         The directory to be zipped
 
     :param dest:
-        The directory to put the generated zip file into
+        The directory to put the generated zip file in
 
     :param prefix:
         The prefix for files added to the zip file. For example, we can add `a.py`
