@@ -3,7 +3,7 @@ from shutil import rmtree
 
 from ward import test
 
-from pu_utils.python_zip import pip_install, reproducible_zip
+from pu_utils.python_zip import pip_install, reproducible_zip, zip_source
 
 PROJECT_DIR = Path(__file__).parents[1]
 FIXTURES_DIR = PROJECT_DIR.joinpath("fixtures")
@@ -38,3 +38,13 @@ def _() -> None:
     rmtree(tmp_dir.resolve())
     golden_path = FIXTURES_DIR.joinpath("repro.zip")
     assert Path(golden_path).read_bytes() == Path(zip_path).read_bytes()
+
+
+@test("zip_source() creates a zip file from the provided directory")
+def _() -> None:
+    zip_source(
+        "source",
+        source=FIXTURES_DIR.joinpath("zip_source"),
+        dest=TMP_DIR.joinpath("zip_source"),
+    )
+    assert TMP_DIR.joinpath("zip_source/source.zip").exists()
