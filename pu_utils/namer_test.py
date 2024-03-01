@@ -1,6 +1,6 @@
 from ward import test
 
-from pulumi_utils.namer import Namer
+from pu_utils.namer import Namer
 
 for stage, region, instance, prefix, description, expected in [
     ("dev", "apse1", None, None, None, "dev-api-apse1"),

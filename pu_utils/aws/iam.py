@@ -12,7 +12,7 @@ from pulumi_aws.iam import (
     get_policy_document,
 )
 
-from pulumi_utils.namer import Namer
+from pu_utils.namer import Namer
 
 AWS_REGION = os.environ["AWS_REGION"]
 

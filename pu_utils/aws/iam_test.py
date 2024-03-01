@@ -3,7 +3,7 @@ import os
 
 from ward import test
 
-from pulumi_utils.namer import Namer
+from pu_utils.namer import Namer
 
 os.environ["AWS_REGION"] = "ap-southeast-1"
 
@@ -104,7 +104,7 @@ for policy_name, method, args, expected_name, expected_actions, expected_resourc
         expected_actions: list[str] = expected_actions,
         expected_resource: str = expected_resource,
     ) -> None:
-        from pulumi_utils.aws.iam import PolicyFactory
+        from pu_utils.aws.iam import PolicyFactory
 
         factory = PolicyFactory(Namer("dev", "apse1"), aws_account_id="012345678910")
         policy = getattr(factory, method)(*args)
@@ -127,7 +127,7 @@ for policy_name, method, args, expected_name, expected_actions, expected_resourc
 
 @test("Policy for S3 bucket with restricted prefix and path")
 def _() -> None:
-    from pulumi_utils.aws.iam import PolicyFactory
+    from pu_utils.aws.iam import PolicyFactory
 
     factory = PolicyFactory(Namer("dev", "apse1"), aws_account_id="012345678910")
     policy = factory.s3_policy("email-templates", "emails", prefix="pre")

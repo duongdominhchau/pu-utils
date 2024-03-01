@@ -2,7 +2,7 @@ from pathlib import Path
 
 from ward import test
 
-from pulumi_utils.python_zip import pip_install
+from pu_utils.python_zip import pip_install
 
 PROJECT_DIR = Path(__file__).parents[1]
 FIXTURES_DIR = PROJECT_DIR.joinpath("fixtures")
