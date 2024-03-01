@@ -10,7 +10,7 @@ don't have enough effort to test for them.
 ## Install
 
 ```sh
-pip install pulumi-utils
+pip install pu-utils
 ```
 
 ## Usage
