@@ -1,8 +1,12 @@
 # This is a library, so it should not have lock file committed
 *requirements.txt
 
+tmp/
+
 .direnv/
 .envrc
+
+!.keep
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
