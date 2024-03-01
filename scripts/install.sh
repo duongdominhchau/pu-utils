@@ -1,6 +1,4 @@
 #!/bin/bash
 
-for extra in dev aws; do
-	uv pip compile "$@" pyproject.toml --extra "$extra" -o "$extra-requirements.txt"
-	uv pip install -r "${extra}-requirements.txt"
-done
+uv pip compile "$@" pyproject.toml --all-extras -o dev-requirements.txt
+uv pip install -r dev-requirements.txt
