@@ -67,7 +67,7 @@ def create_source_zip(
         A pair containing the S3 object and its base64-encoded hash ready to be used
         with Pulumi AWS
     """
-    key_prefix = f"{key_prefix}/" if key_prefix else ""
+    key_prefix = key_prefix or ""
     key = f"{key_prefix}{name}.zip"
 
     zip_path = zip_source(name, source, dest, prefix)
