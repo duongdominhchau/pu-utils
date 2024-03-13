@@ -101,11 +101,13 @@ class LambdaFunction(ComponentResource):
         name: str,
         namer: Namer,
         aws_account_id: str,
-        source_dir: Path,
         build_dir: Path,
         deployment_bucket: Input[str],
         handler: Input[str],
         runtime: Input[str],
+        source_dir: Path | None = None,
+        source: BucketObjectv2 | None = None,
+        source_hash: str | None = None,
         s3_key_prefix: str | None = None,
         log_retention_in_days: Input[int] | None = None,
         timeout: Input[int] = 6,
@@ -130,6 +132,12 @@ class LambdaFunction(ComponentResource):
 
         :param source_dir:
             Directory containing code of the Lambda function
+
+        :param source:
+            The S3 object representing the zip file containing the function code
+
+            If this option is used, `source_hash` is required. This option does not work
+            with `source_dir`.
 
         :param build_dir:
             Directory to place build artifacts
@@ -175,6 +183,8 @@ class LambdaFunction(ComponentResource):
         self._function = self._create_function(
             name,
             source_dir=source_dir,
+            source=source,
+            source_hash=source_hash,
             build_dir=build_dir,
             deployment_bucket=deployment_bucket,
             function_name=self.function_name,
@@ -222,7 +232,9 @@ class LambdaFunction(ComponentResource):
         self,
         name: str,
         *,
-        source_dir: Path,
+        source_dir: Path | None = None,
+        source: BucketObjectv2 | None = None,
+        source_hash: str | None = None,
         build_dir: Path,
         deployment_bucket: Input[str],
         function_name: str,
@@ -237,14 +249,19 @@ class LambdaFunction(ComponentResource):
         layers: Sequence[Input[str]] | None = None,
         env_vars: dict[str, str] | None = None,
     ) -> Function:
-        source, source_hash = create_source_zip(
-            name,
-            bucket=deployment_bucket,
-            source=source_dir,
-            dest=build_dir,
-            key_prefix=s3_key_prefix,
-            opts=ResourceOptions(parent=self),
-        )
+        if source_dir:
+            source, source_hash = create_source_zip(
+                name,
+                bucket=deployment_bucket,
+                source=source_dir,
+                dest=build_dir,
+                key_prefix=s3_key_prefix,
+                opts=ResourceOptions(parent=self),
+            )
+        if not source:
+            raise ValueError("Need to provide `source_dir` or `(source, source_hash)`")
+        if not source_hash:
+            raise ValueError("`source_hash` is required when `source` is used")
         return Function(
             name,
             name=function_name,
