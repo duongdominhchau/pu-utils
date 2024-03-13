@@ -136,8 +136,7 @@ class LambdaFunction(ComponentResource):
         :param source:
             The S3 object representing the zip file containing the function code
 
-            If this option is used, `source_hash` is required. This option does not work
-            with `source_dir`.
+            This option does not work with `source_dir`.
 
         :param build_dir:
             Directory to place build artifacts
@@ -260,8 +259,6 @@ class LambdaFunction(ComponentResource):
             )
         if not source:
             raise ValueError("Need to provide `source_dir` or `(source, source_hash)`")
-        if not source_hash:
-            raise ValueError("`source_hash` is required when `source` is used")
         return Function(
             name,
             name=function_name,
