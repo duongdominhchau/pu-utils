@@ -1,6 +1,6 @@
 [project]
 name = "pu-utils"
-version = "0.0.3"
+version = "0.0.4"
 description = "Random stuff to help writing Pulumi scripts easier"
 readme = "README.md"
 license = { file = "LICENSE" }
