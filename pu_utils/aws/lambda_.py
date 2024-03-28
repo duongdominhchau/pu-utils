@@ -348,3 +348,105 @@ def create_lambda_invoke_permission(
         source_arn=Output.concat(gateway_execution_arn, "/", path),
         opts=opts,
     )
+
+
+class ContainerLambda(ComponentResource):
+    def __init__(  # noqa: PLR0913
+        self,
+        name: str,
+        namer: Namer,
+        aws_account_id: str,
+        image_uri: Input[str],
+        log_retention_in_days: Input[int] | None = None,
+        timeout: Input[int] = 6,
+        memory_size: Input[int] = 1024,
+        architectures: list[str] | None = None,
+        vpc_config: FunctionVpcConfigArgs | None = None,
+        layers: Sequence[Input[str]] | None = None,
+        env_vars: dict[str, str] | None = None,
+        policies: Iterable[RoleInlinePolicyArgs] | None = None,
+        opts: ResourceOptions | None = None,
+    ) -> None:
+        super().__init__("pu-utils:index:ContainerLambda", name, None, opts)
+        self.function_name = namer.lambda_function(name)
+
+        policy_factory = PolicyFactory(namer=namer, aws_account_id=aws_account_id)
+        self._execution_role = self._create_execution_role(
+            name,
+            role_name=namer.role(name),
+            policies=[
+                policy_factory.lambda_log_policy(self.function_name),
+                policy_factory.lambda_vpc_policy(),
+                policy_factory.ssm_params_policy(),
+                *(policies or []),
+            ],
+        )
+        self._function = self._create_function(
+            name,
+            image_uri=image_uri,
+            function_name=self.function_name,
+            architectures=architectures,
+            timeout=timeout,
+            memory_size=memory_size,
+            role_arn=self._execution_role.arn,
+            vpc_config=vpc_config,
+            layers=layers,
+            env_vars=env_vars,
+        )
+        self._log_group = self._create_log_group(name, log_retention_in_days)
+        self.register_outputs({})
+
+    def _create_log_group(
+        self,
+        name: str,
+        retention_in_days: Input[int] | None = None,
+    ) -> LogGroup:
+        return LogGroup(
+            name,
+            name=f"/aws/lambda/{self.function_name}",
+            retention_in_days=retention_in_days,
+            opts=ResourceOptions(parent=self),
+        )
+
+    def _create_execution_role(
+        self,
+        name: str,
+        role_name: str,
+        policies: Iterable[Input[RoleInlinePolicyArgs]],
+    ) -> Role:
+        return Role(
+            name,
+            name=role_name,
+            assume_role_policy=assume_role_policy(),
+            inline_policies=list(policies),
+            opts=ResourceOptions(parent=self),
+        )
+
+    def _create_function(  # noqa: PLR0913
+        self,
+        name: str,
+        *,
+        function_name: str,
+        role_arn: Input[str],
+        image_uri: Input[str],
+        architectures: Sequence[str] | None = None,
+        timeout: Input[int] | None = None,
+        memory_size: Input[int] | None = None,
+        vpc_config: Input[FunctionVpcConfigArgs] | None = None,
+        layers: Sequence[Input[str]] | None = None,
+        env_vars: dict[str, str] | None = None,
+    ) -> Function:
+        return Function(
+            name,
+            name=function_name,
+            role=role_arn,
+            image_uri=image_uri,
+            package_type="Image",
+            architectures=architectures,
+            timeout=timeout,
+            memory_size=memory_size,
+            vpc_config=vpc_config,
+            layers=layers,
+            environment=FunctionEnvironmentArgs(variables=env_vars),
+            opts=ResourceOptions(parent=self),
+        )
