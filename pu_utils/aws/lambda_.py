@@ -351,6 +351,18 @@ def create_lambda_invoke_permission(
 
 
 class ContainerLambda(ComponentResource):
+    @property
+    def name(self) -> Output[str]:
+        return self._function.name
+
+    @property
+    def arn(self) -> Output[str]:
+        return self._function.arn
+
+    @property
+    def invoke_arn(self) -> Output[str]:
+        return self._function.invoke_arn
+
     def __init__(  # noqa: PLR0913
         self,
         name: str,
