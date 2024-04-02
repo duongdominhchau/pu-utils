@@ -390,6 +390,8 @@ class ContainerLambda(ComponentResource):
                 policy_factory.lambda_log_policy(self.function_name),
                 policy_factory.lambda_vpc_policy(),
                 policy_factory.ssm_params_policy(),
+                # For decrypting SSM parameters
+                policy_factory.kms_policy(),
                 *(policies or []),
             ],
         )
