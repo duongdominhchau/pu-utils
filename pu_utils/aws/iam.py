@@ -3,18 +3,35 @@ import os
 from collections.abc import Sequence
 from dataclasses import dataclass
 
-from pulumi import Input
+from pulumi import Input, Output, ResourceOptions
 from pulumi_aws.iam import (
-    AwaitableGetPolicyDocumentResult,
     GetPolicyDocumentStatementArgs,
     GetPolicyDocumentStatementPrincipalArgs,
     RoleInlinePolicyArgs,
     get_policy_document,
 )
+from pulumi_aws.lambda_ import Permission
 
 from pu_utils.namer import Namer
 
 AWS_REGION = os.environ["AWS_REGION"]
+
+
+def create_lambda_invoke_permission(
+    name: str,
+    function_name: Input[str],
+    gateway_execution_arn: Input[str],
+    path: Input[str] = "*/*",
+    opts: ResourceOptions | None = None,
+) -> Permission:
+    return Permission(
+        name,
+        action="lambda:invokeFunction",
+        function=function_name,
+        principal="apigateway.amazonaws.com",
+        source_arn=Output.concat(gateway_execution_arn, "/", path),
+        opts=opts,
+    )
 
 
 def policy_json(*, actions: Sequence[str], resource: str, allow: bool = True) -> str:
@@ -131,6 +148,17 @@ class PolicyFactory:
                     "ses:SendEmail",
                 ],
                 resource=f"arn:aws:ses:{AWS_REGION}:{self.aws_account_id}:identity/{sender}",
+            ),
+        )
+
+    def sms_policy(self) -> RoleInlinePolicyArgs:
+        return RoleInlinePolicyArgs(
+            name=self.namer.role_policy("sms"),
+            policy=policy_json(
+                actions=[
+                    "sns:Publish",
+                ],
+                resource="*",
             ),
         )
 

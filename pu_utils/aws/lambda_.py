@@ -11,7 +11,6 @@ from pulumi_aws.lambda_ import (
     FunctionEnvironmentArgs,
     FunctionVpcConfigArgs,
     LayerVersion,
-    Permission,
 )
 from pulumi_aws.s3 import BucketObjectv2
 
@@ -331,23 +330,6 @@ class LambdaLayer(ComponentResource):
             compatible_runtimes=runtime,
             opts=ResourceOptions(parent=self),
         )
-
-
-def create_lambda_invoke_permission(
-    name: str,
-    function_name: Input[str],
-    gateway_execution_arn: Input[str],
-    path: Input[str] = "*/*",
-    opts: ResourceOptions | None = None,
-) -> Permission:
-    return Permission(
-        name,
-        action="lambda:invokeFunction",
-        function=function_name,
-        principal="apigateway.amazonaws.com",
-        source_arn=Output.concat(gateway_execution_arn, "/", path),
-        opts=opts,
-    )
 
 
 class ContainerLambda(ComponentResource):

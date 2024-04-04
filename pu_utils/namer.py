@@ -54,4 +54,4 @@ class Namer:
             self._instance,
             description,
         ]
-        return "-".join(filter(None, parts))
+        return "-".join(part for part in parts if part)
