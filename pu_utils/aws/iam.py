@@ -146,6 +146,7 @@ class PolicyFactory:
             policy=policy_json(
                 actions=[
                     "ses:SendEmail",
+                    "ses:SendRawEmail",
                 ],
                 resource=f"arn:aws:ses:{AWS_REGION}:{self.aws_account_id}:identity/{sender}",
             ),
